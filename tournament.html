@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FIFA World Cup 2026 決勝トーナメント表</title>
+<style>
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+    background:#1a202c;
+    color:#e2e8f0;
+    overflow-x: hidden;
+}
+
+header {
+    background: linear-gradient(135deg, #0b2a6d 0%, #1e5799 100%);
+    color:white;
+    text-align:center;
+    padding:14px;
+    position:sticky;
+    top:0;
+    z-index:100;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+header h1{
+    margin:0;
+    font-size:16px;
+    letter-spacing: 1px;
+}
+
+.nav-bar {
+    background: #2d3748;
+    padding: 8px 14px;
+    border-bottom: 1px solid #4a5568;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-back {
+    display: inline-block;
+    background: #4a5568;
+    color: white;
+    text-decoration: none;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.info-badge {
+    background: #2b6cb0;
+    color: white;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 4px;
+}
+
+.scroll-container {
+    width: 100%;
+    overflow-x: auto;
+    background: #1a202c;
+    padding: 20px 0;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tournament-chart {
+    display: flex;
+    gap: 20px;
+    width: max-content;
+    padding: 0 20px;
+    align-items: center;
+}
+
+.round-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 140px;
+    height: 680px;
+    position: relative;
+}
+
+.round-title {
+    text-align: center;
+    font-size: 10px;
+    font-weight: bold;
+    color: #a0aec0;
+    background: #2d3748;
+    padding: 4px 0;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.match-box {
+    background: #2d3748;
+    border: 1px solid #4a5568;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+
+.match-meta {
+    background: #1a202c;
+    font-size: 9px;
+    padding: 2px 6px;
+    color: #cbd5e0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.m-no { color: #fc8181; font-weight: bold; }
+
+.team-row {
+    padding: 6px 8px;
+    font-size: 11px;
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-bottom: 1px solid #4a5568;
+    display: flex;
+    justify-content: space-between;
+}
+.team-row:last-child { border-bottom: none; }
+
+.placeholder {
+    color: #718096;
+    font-weight: normal;
+    font-style: italic;
+}
+
+.confirmed {
+    color: #fff;
+    background: rgba(66, 153, 225, 0.15);
+}
+
+.condition-lbl {
+    font-size: 8px;
+    padding: 1px 4px;
+    border-radius: 3px;
+    background: #4a5568;
+    color: #cbd5e0;
+}
+
+.center-box {
+    width: 160px;
+    background: #2b6cb0;
+    border: 2px solid #63b3ed;
+}
+.center-box .match-meta { background: #1a365d; }
+
+.scroll-hint {
+    text-align: center;
+    font-size: 11px;
+    color: #a0aec0;
+    padding: 6px;
+    background: #2d3748;
+}
+</style>
+</head>
+<body>
+
+<header>
+<h1>FIFA WORLD CUP 2026 決勝T (自動反映版)</h1>
+</header>
+
+<div class="nav-bar">
+    <a href="index.html" class="btn-back">← 星取表</a>
+    <div id="statusBadge" class="info-badge">データを同期中...</div>
+</div>
+
+<div class="scroll-hint">👈 左右スクロールで「左の山 ➔ 決勝（中央） ➔ 右の山」が見渡せます 👉</div>
+
+<div class="scroll-container" id="scrollContainer">
+    <div class="tournament-chart">
+
+        <div class="round-col">
+            <div class="round-title">ラウンド32</div>
+            <div class="match-box">
+                <div class="match-meta"><span class="m-no">M73</span><span>6/28</span></div>
+                <div class="team-row" id="slot-A-1"><span class="placeholder">A組 1位</span><span class="condition-lbl">A1</span></div>
+                <div class="team-row" id="slot-CEF-3"><span class="placeholder">C/E/F組 3位</span><span class="condition-lbl">3位</span></div>
+            </div>
+            <div class="match-box">
+                <div class="match-meta"><span class="m-no">M74</span><span>6/28</span></div>
+                <div class="team-row" id="slot-E-2"><span class="placeholder">E組 2位</span><span class="condition-lbl">E2</span></div>
+                <div class="team-row" id="slot-I-2"><span class="placeholder">I組 2位</span><span class="condition-lbl">I2</span></div>
+            </div>
+            <div class="match-box">
+                <div class="match-meta"><span class="m-no">M75</span><span>6/29</span></div>
+                <div class="team-row" id="slot-F-1"><span class="placeholder">F組 1位(日本)</span><span class="condition-lbl">F1</span></div>
+                <div class="team-row" id="slot-C-2"><span class="placeholder">C組 2位</span><span class="condition-lbl">C2</span></div>
+            </div>
+            <div class="match-box">
+                <div class="match-meta"><span class="m-no">M76</span><span>6/29</span></div>
+                <div class="team-row" id="slot-C-1"><span class="placeholder">C組 1位</span><span class="condition-lbl">C1</span></div>
+                <div class="team-row" id="slot-F-2"><span class="placeholder">F組 2位(日本)</span><span class="condition-lbl">F2</span></div>
+            </div>
+            <div class="match-box">
+                <div class="match-meta"><span class="m-no">M77</span><span>6/30</span></div>
+                <div class="team-row" id="slot-E-1"><span class="placeholder">E組 1位</span><span class="condition-lbl">E1</span></div>
+                <div class="team-row" id="slot-ABCDF-3"><span class="placeholder">A/B/C/D/F組 3位</span><span class="condition-lbl">3位</span></div>
+            </div>
+            <div class="match-box">
+                <div class="match-meta"><span class="m-no">M78</span><span>6/30</span></div>
+                <div class="team-row" id="slot-I-1"><span class="placeholder">I組 1位</span><span class="condition-lbl">I1</span></div>
+                <div class="team-row" id="slot-GHJKL-3"><span class="placeholder">G/H/J/K/L組 3位</span><span class="condition-lbl">3位</span></div>
+            </div>
+            <div class="match-box">
+                <div class="match-meta"><span class="m-no">M79</span><span>7/1</span></div>
+                <div class="team-row" id="slot-J-1"><span class="placeholder">J組 1位</span><span class="condition-lbl">J1</span></div>
+                <div class="team-row" id="slot-H-2"><span class="placeholder">H組 2位</span><span class="condition-lbl">H2</span></div>
+            </div>
+            <div class="match-box">
+                <div class="match-meta"><span class="m-no">M80</span><span>7/1</span></div>
+                <div class="team-row" id="slot-D-1"><span class="placeholder">D組 1位</span><span class="condition-lbl">D1</span></div>
+                <div class="team-row" id="slot-BEFGI-3"><span class="placeholder">B/E/F/G/I組 3位</span><span class="condition-lbl">3位</span></div>
+            </div>
+        </div>
+
+        <div class="round-col">
+            <div class="round-title">ベスト16</div>
+            <div class="match-box"><div class="match-meta"><span class="m-no">M89</span><span>7/4</span></div><div class="team-row placeholder">M73 の勝者</div><div class="team-row placeholder">M74 の勝者</div></div>
+            <div class="match-box"><div class="match-meta"><span class="m-no">M90</span><span>7/5</span></div><div class="team-row placeholder">M75 の勝者</div><div class="team-row placeholder">M76 の勝者</div></div>
+            <div class="match-box"><div class="match-meta"><span class="m-no">M91</span><span>7/5</span></div><div class="team-row placeholder">M77 の勝者</div><div class="team-row placeholder">M78 の勝者</div></div>
+            <div class="match-box"><div class="match-meta"><span class="m-no">M92</span><span>7/6</span></div><div class="team-row placeholder">M79 の勝者</div><div class="team-row placeholder">M80 の勝者</div></div>
+        </div>
+
+        <div class="round-col">
+            <div class="round-title">準々決勝</div>
+            <div class="match-box"><div class="match-meta"><span class="m-no">M97</span><span>7/9</span></div><div class="team-row placeholder">M89 の勝者</div><div class="team-row placeholder">M90 の勝者</div></div>
+            <div class="match-box"><div class="match-meta"><span class="m-no">M98</span><span>7/10</span></div><div class="team-row placeholder">M91 の勝者</div><div class="team-row placeholder">M92 の勝者</div></div>
+        </div>
+
+        <div class="round-col" style="width: 160px; justify-content: center; gap: 40px;">
+            <div class="round-title" style="background: #1a365d; color: white;">準決勝 ＆ 決勝</div>
+            <div class="match-box"><div class="match-meta"><span class="m-no">M101</span><span>7/14</span></div><div class="team-row placeholder">M97 の勝者</div><div class="team-row placeholder">M98 の勝者</div></div>
+            <div class="match-box center-box">
+                <div class="match-meta"><span class="m-no" style="color:#fff;">M104 決勝</span><span>7/19</span></div>
+                <div class="team-row" style="color: #fff; text-align: center;">🏆 左の山・勝者</div>
+                <div class="team-row" style="color: #fff; text-align: center;">🏆 右の山・勝者</div>
+            </div>
+            <div class="match-box"><div class="match-meta"><span class="m-no">M102</span><span>7/15</span></div><div class="team-row placeholder">M99 の勝者</div><div class="team-row placeholder">M100 の勝者</div></div>
+        </div>
+
+        <div class="round-col">
+            <div class="round-title">準々決勝</div>
+            <div class="match-box"><div class="match-meta"><span class="m-no">M99</span><span>7/11</span></div><div class="team-row placeholder">M93 の勝者</div><div class="team-row placeholder">M94 の勝者</div></div>
+            <div class="match-box"><div class="match-meta"><span class="m-no">M100</span><span>7/11</span></div><div class="team-row placeholder">M95 の勝者</div><div class="team-row placeholder">M96 の勝者</div></div>
+        </div>
+
+        <div class="round-col">
+            <div class="round-title">ベスト16</div>
+            <div class="match-box"><div class="match-meta"><span class="m-no">M93</span><span>7/6</span></div><div class="team-row placeholder">M81 の勝者</div><div class="team-row placeholder">M82 の勝者</div></div>
+            <div class="match-box"><div class="match-meta"><span class="m-no">M94</span><span>7/7</span></div><div class="team-row placeholder">M83 の勝者</div><div class="team-row placeholder">M84 の勝者</div></div>
+            <div class="match-box"><div class="match-meta"><span class="m-no">M95</span><span>7/7</span></div><div class="team-row placeholder">M85 の勝者</div><div class="team-row placeholder">M86 の勝者</div></div>
+            <div class="match-box"><div class="match-meta"><span class="m-no">M96</span><span>7/8</span></div><div class="team-row placeholder">M87 の勝者</div><div class="team-row placeholder">M88 の勝者</div></div>
+        </div>
+
+        <div class="round-col">
+            <div class="round-title">ラウンド32</div>
+            <div class="match-box">
+                <div class="match-meta"><span class="m-no">M81</span><span>7/2</span></div>
+                <div class="team-row" id="slot-B-1"><span class="placeholder">B組 1位</span><span class="condition-lbl">B1</span></div>
+                <div class="team-row" id="slot-EFGIJ-3"><span class="placeholder">E/F/G/I/J組 3位</span><span class="condition-lbl">3位</span></div>
+            </div>
+            <div class="match-box">
+                <div class="match-meta"><span class="m-no">M82</span><span>7/2</span></div>
+                <div class="team-row" id="slot-A-2"><span class="placeholder">A組 2位</span><span class="condition-lbl">A2</span></div>
+                <div class="team-row" id="slot-B-2"><span class="placeholder">B組 2位</span><span class="condition-lbl">B2</span></div>
+            </div>
+            <div class="match-box">
+                <div class="match-meta"><span class="m-no">M83</span><span>7/3</span></div>
+                <div class="team-row" id="slot-H-1"><span class="placeholder">H組 1位</span><span class="condition-lbl">H1</span></div>
+                <div class="team-row" id="slot-J-2"><span class="placeholder">J組 2位</span><span class="condition-lbl">J2</span></div>
+            </div>
+            <div class="match-box">
+                <div class="match-meta"><span class="m-no">M84</span><span>7/3</span></div>
+                <div class="team-row" id="slot-G-1"><span class="placeholder">G組 1位</span><span class="condition-lbl">G1</span></div>
+                <div class="team-row" id="slot-ADEHI-3"><span class="placeholder">A/D/E/H/I組 3位</span><span class="condition-lbl">3位</span></div>
+            </div>
+            <div class="match-box">
+                <div class="match-meta"><span class="m-no">M85</span><span>7/4</span></div>
+                <div class="team-row" id="slot-K-1"><span class="placeholder">K組 1位</span><span class="condition-lbl">K1</span></div>
+                <div class="team-row" id="slot-DEIJK-3"><span class="placeholder">D/E/I/J/K組 3位</span><span class="condition-lbl">3位</span></div>
+            </div>
+            <div class="match-box">
+                <div class="match-meta"><span class="m-no">M86</span><span>7/4</span></div>
+                <div class="team-row" id="slot-D-2"><span class="placeholder">D組 2位</span><span class="condition-lbl">D2</span></div>
+                <div class="team-row" id="slot-G-2"><span class="placeholder">G組 2位</span><span class="condition-lbl">G2</span></div>
+            </div>
+            <div class="match-box">
+                <div class="match-meta"><span class="m-no">M87</span><span>7/5</span></div>
+                <div class="team-row" id="slot-L-1"><span class="placeholder">L組 1位</span><span class="condition-lbl">L1</span></div>
+                <div class="team-row" id="slot-GHIJK-3"><span class="placeholder">G/H/I/J/K組 3位</span><span class="condition-lbl">3位</span></div>
+            </div>
+            <div class="match-box">
+                <div class="match-meta"><span class="m-no">M88</span><span>7/5</span></div>
+                <div class="team-row" id="slot-C-2"><span class="placeholder">C組 2位</span><span class="condition-lbl">C2</span></div>
+                <div class="team-row" id="slot-K-2"><span class="placeholder">K組 2位</span><span class="condition-lbl">K2</span></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+// ⚠️【最重要】ここにGASの「ウェブアプリのURL」を貼り付けてください！
+const GAS_API_URL = "https://script.google.com/macros/s/AKfycbz0xTl6cKHi2t-Ud_b_U0UtBWCaNh7H621S02yqsvzEVXBGlHPfLC7yIA_D-AKg2fTD/exec";
+
+let groupsCountries = {};
+
+async function initTournament() {
+    try {
+        const response = await fetch(GAS_API_URL);
+        if (!response.ok) throw new Error();
+        const matches = await response.json();
+        
+        matches.forEach(m => {
+            if (!groupsCountries[m.group]) groupsCountries[m.group] = [];
+            if (!groupsCountries[m.group].includes(m.home)) groupsCountries[m.group].push(m.home);
+            if (!groupsCountries[m.group].includes(m.away)) groupsCountries[m.group].push(m.away);
+        });
+
+        let standings = {};
+        let thirdPlaces = [];
+
+        Object.keys(groupsCountries).forEach(gId => {
+            const result = calculateGroupStandings(gId, matches);
+            standings[gId] = result;
+            if(result[2]) {
+                thirdPlaces.push({ group: gId, team: result[2].team, pts: result[2].pts, gd: result[2].gd, gf: result[2].gf });
+            }
+        });
+
+        thirdPlaces.sort((a,b) => b.pts - a.pts || b.gd - a.gd || b.gf - a.gf);
+        let top3rdTeams = thirdPlaces.slice(0, 8).map(t => t.team);
+
+        // 各スロットに流し込み
+        applySlot("slot-A-1", standings["A"], 0, "A組 1位");
+        applySlot("slot-A-2", standings["A"], 1, "A組 2位");
+        applySlot("slot-B-1", standings["B"], 0, "B組 1位");
+        applySlot("slot-B-2", standings["B"], 1, "B組 2位");
+        applySlot("slot-C-1", standings["C"], 0, "C組 1位");
+        applySlot("slot-C-2", standings["C"], 1, "C組 2位");
+        applySlot("slot-D-1", standings["D"], 0, "D組 1位");
+        applySlot("slot-D-2", standings["D"], 1, "D組 2位");
+        applySlot("slot-E-1", standings["E"], 0, "E組 1位");
+        applySlot("slot-E-2", standings["E"], 1, "E組 2位");
+        applySlot("slot-F-1", standings["F"], 0, "F組 1位");
+        applySlot("slot-F-2", standings["F"], 1, "F組 2位");
+        applySlot("slot-G-1", standings["G"], 0, "G組 1位");
+        applySlot("slot-G-2", standings["G"], 1, "G組 2位");
+        applySlot("slot-H-1", standings["H"], 0, "H組 1位");
+        applySlot("slot-H-2", standings["H"], 1, "H組 2位");
+        applySlot("slot-I-1", standings["I"], 0, "I組 1位");
+        applySlot("slot-I-2", standings["I"], 1, "I組 2位");
+        applySlot("slot-J-1", standings["J"], 0, "J組 1位");
+        applySlot("slot-J-2", standings["J"], 1, "J組 2位");
+        applySlot("slot-K-1", standings["K"], 0, "K組 1位");
+        applySlot("slot-K-2", standings["K"], 1, "K組 2位");
+        applySlot("slot-L-1", standings["L"], 0, "L組 1位");
+        applySlot("slot-L-2", standings["L"], 1, "L組 2位");
+
+        fillThirdPlaceSlot("slot-CEF-3", ["C", "E", "F"], standings, top3rdTeams, "C/E/F組 3位");
+        fillThirdPlaceSlot("slot-ABCDF-3", ["A", "B", "C", "D", "F"], standings, top3rdTeams, "A/B/C/D/F組 3位");
+        fillThirdPlaceSlot("slot-GHJKL-3", ["G", "H", "J", "K", "L"], standings, top3rdTeams, "G/H/J/K/L組 3位");
+        fillThirdPlaceSlot("slot-BEFGI-3", ["B", "E", "F", "G", "I"], standings, top3rdTeams, "B/E/F/G/I組 3位");
+        fillThirdPlaceSlot("slot-EFGIJ-3", ["E", "F", "G", "I", "J"], standings, top3rdTeams, "E/F/G/I/J組 3位");
+        fillThirdPlaceSlot("slot-ADEHI-3", ["A", "D", "E", "H", "I"], standings, top3rdTeams, "A/D/E/H/I組 3位");
+        fillThirdPlaceSlot("slot-DEIJK-3", ["D", "E", "I", "J", "K"], standings, top3rdTeams, "D/E/I/J/K組 3位");
+        fillThirdPlaceSlot("slot-GHIJK-3", ["G", "H", "I", "J", "K"], standings, top3rdTeams, "G/H/I/J/K組 3位");
+
+        document.getElementById("statusBadge").textContent = "同期完了";
+        document.getElementById("statusBadge").style.background = "#27ae60";
+
+    } catch (e) {
+        document.getElementById("statusBadge").textContent = "同期失敗";
+        document.getElementById("statusBadge").style.background = "#c0392b";
+    }
+}
+
+function applySlot(elementId, groupRows, rankIndex, defaultText) {
+    const el = document.getElementById(elementId);
+    if (!el || !groupRows || !groupRows[rankIndex]) return;
+    
+    // グループ全体の消化試合数合計が12(=6試合)に達しているか
+    const totalGroupMatches = groupRows.reduce((sum, t) => sum + (t.w || 0) + (t.d || 0) + (t.l || 0), 0);
+
+    if (totalGroupMatches >= 12) {
+        const teamName = groupRows[rankIndex].team;
+        el.innerHTML = `<span>${teamName}</span><span class="condition-lbl confirmed">${rankIndex+1}位確定</span>`;
+        el.classList.add("confirmed");
+    } else {
+        el.innerHTML = `<span>${defaultText}</span><span class="condition-lbl">${rankIndex+1}位</span>`;
+        el.classList.remove("confirmed");
+    }
+}
+
+function fillThirdPlaceSlot(elementId, targets, standings, top3rdTeams, defaultText) {
+    const el = document.getElementById(elementId);
+    if(!el) return;
+    
+    for(let g of targets) {
+        if(standings[g] && standings[g][2]) {
+            const totalGroupMatches = standings[g].reduce((sum, t) => sum + (t.w || 0) + (t.d || 0) + (t.l || 0), 0);
+            
+            if (totalGroupMatches < 12) {
+                continue; 
+            }
+
+            let tName = standings[g][2].team;
+            if(top3rdTeams.includes(tName)) {
+                el.innerHTML = `<span>${tName}</span><span class="condition-lbl confirmed">3位通過</span>`;
+                el.classList.add("confirmed");
+                return;
+            }
+        }
+    }
+    el.innerHTML = `<span>${defaultText}</span><span class="condition-lbl">3位</span>`;
+    el.classList.remove("confirmed");
+}
+
+function calculateGroupStandings(group, matchesList) {
+    const table = {};
+    groupsCountries[group].forEach(team => {
+        table[team] = { team, pts:0, gf:0, ga:0, gd:0, w:0, d:0, l:0 };
+    });
+
+    matchesList
+        .filter(m => m.group === group && m.scoreHome !== null && m.scoreHome !== "")
+        .forEach(m => {
+            const h = table[m.home]; const a = table[m.away];
+            if (!h || !a) return;
+            const sH = parseInt(m.scoreHome, 10); const sA = parseInt(m.scoreAway, 10);
+            h.gf += sH; h.ga += sA; a.gf += sA; a.ga += sH;
+            
+            if (sH > sA) { 
+                h.pts += 3; h.w += 1; a.l += 1; 
+            } else if (sH < sA) { 
+                a.pts += 3; a.w += 1; h.l += 1; 
+            } else { 
+                h.pts += 1; a.pts += 1; h.d += 1; a.d += 1; 
+            }
+        });
+
+    Object.values(table).forEach(t => { t.gd = t.gf - t.ga; });
+    return Object.values(table).sort((a,b) => b.pts - a.pts || b.gd - a.gd || b.gf - a.gf);
+}
+
+window.onload = function() {
+    const container = document.getElementById('scrollContainer');
+    container.scrollLeft = (container.scrollWidth - container.clientWidth) / 2;
+    initTournament();
+};
+</script>
+</body>
+</html>
