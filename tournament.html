@@ -396,6 +396,166 @@ async function initTournament() {
         fillThirdPlaceSlot("slot-J-3", ["J"], standings, top3rdTeams, "J組 3位");
         fillThirdPlaceSlot("slot-L-3", ["L"], standings, top3rdTeams, "L組 3位");
 
+        // ── 決勝T: 勝者を次ラウンドへ伝播 ──────────────────────────
+        // CSVから決勝T試合の得点を取得してマップ化
+        const ktResults = {};
+        // チーム名ペアをキーにして決勝T結果を格納（試合番号フィールド名に依存しない）
+        const ktByTeams = {};
+        matches.filter(m => m.group === "決勝T").forEach(m => {
+            // 試合番号キー（GASのフィールド名を複数パターンで試みる）
+            const key = m.matchNo || m.match_no || m.id || m.no || m["開催順"] || m.order;
+            if (m.scoreHome !== null && m.scoreHome !== "") {
+                const sH = parseInt(m.scoreHome, 10);
+                const sA = parseInt(m.scoreAway, 10);
+                const winner = sH > sA ? m.home : sH < sA ? m.away : null;
+                const entry = { home: m.home, away: m.away, scoreHome: sH, scoreAway: sA, winner };
+                if (key) ktResults[key] = entry;
+                // チーム名ペアでも引けるようにしておく
+                ktByTeams[`${m.home}|${m.away}`] = entry;
+            }
+        });
+
+        // R32の各試合について、スロットからチーム名を読んで ktByTeams と突合し ktResults[Mxx] を補完
+        const r32Map = {
+            'M74': ['slot-E-1','slot-D-3'], 'M77': ['slot-I-1','slot-F-3'],
+            'M73': ['slot-A-2','slot-B-2'], 'M75': ['slot-F-1','slot-C-2'],
+            'M83': ['slot-K-2','slot-L-2'], 'M84': ['slot-H-1','slot-J-2'],
+            'M81': ['slot-D-1','slot-B-3'], 'M82': ['slot-G-1','slot-I-3'],
+            'M76': ['slot-C-1','slot-F-2'], 'M78': ['slot-E-2','slot-I-2'],
+            'M79': ['slot-A-1','slot-E-3'], 'M80': ['slot-L-1','slot-K-3'],
+            'M86': ['slot-J-1','slot-H-2'], 'M88': ['slot-D-2','slot-G-2'],
+            'M85': ['slot-B-1','slot-J-3'], 'M87': ['slot-K-1','slot-L-3'],
+        };
+        Object.entries(r32Map).forEach(([mno, [hSlot, aSlot]]) => {
+            if (ktResults[mno]) return; // すでに試合番号で取得済み
+            const hEl = document.getElementById(hSlot);
+            const aEl = document.getElementById(aSlot);
+            if (!hEl || !aEl) return;
+            const hName = hEl.querySelector('span:first-child')?.textContent?.trim();
+            const aName = aEl.querySelector('span:first-child')?.textContent?.trim();
+            if (hName && aName) {
+                const entry = ktByTeams[`${hName}|${aName}`] || ktByTeams[`${aName}|${hName}`];
+                if (entry) ktResults[mno] = entry;
+            }
+        });
+
+        // 勝者を表示するヘルパー（ベスト16以降の「○○の勝者」枠を置き換え）
+        function showKnockoutWinner(matchNo, position) {
+            // position: 'home'=上段, 'away'=下段
+            const r = ktResults[matchNo];
+            if (!r || !r.winner) return null;
+            return r.winner;
+        }
+
+        // R32結果表示（match-boxにスコアを表示）
+        document.querySelectorAll('.match-box').forEach(box => {
+            const mnoEl = box.querySelector('.m-no');
+            if (!mnoEl) return;
+            const mno = mnoEl.textContent.trim();
+            const r = ktResults[mno];
+            if (!r) return;
+
+            // スコア表示を match-meta に追加（既に追加済みでなければ）
+            const metaEl = box.querySelector('.match-meta');
+            if (metaEl && !metaEl.querySelector('.ko-score')) {
+                const scoreSpan = document.createElement('span');
+                scoreSpan.className = 'ko-score';
+                scoreSpan.textContent = `${r.scoreHome} - ${r.scoreAway}`;
+                scoreSpan.style.cssText = 'font-weight:bold; color:#f6e05e; margin-left:4px;';
+                metaEl.appendChild(scoreSpan);
+            }
+
+            // チーム行にスコアと勝敗を反映
+            const rows = box.querySelectorAll('.team-row');
+            if (rows.length >= 2) {
+                const homeWon = r.scoreHome > r.scoreAway;
+                const awayWon = r.scoreAway > r.scoreHome;
+                if (homeWon) {
+                    rows[0].style.fontWeight = 'bold';
+                    rows[0].style.color = '#68d391';
+                    rows[1].style.opacity = '0.5';
+                } else if (awayWon) {
+                    rows[1].style.fontWeight = 'bold';
+                    rows[1].style.color = '#68d391';
+                    rows[0].style.opacity = '0.5';
+                }
+            }
+        });
+
+        // ベスト16以降の「XXの勝者」プレースホルダーを実際のチーム名に置換
+        // 各ラウンドのmatch-boxを走査してplcaeholderテキストを更新
+        function propagateWinner(sourceMatchNo, targetBoxMno, position) {
+            const winner = ktResults[sourceMatchNo]?.winner;
+            if (!winner) return;
+
+            // position: 0=上段(home), 1=下段(away)
+            document.querySelectorAll('.match-box').forEach(box => {
+                const mnoEl = box.querySelector('.m-no');
+                if (!mnoEl || mnoEl.textContent.trim() !== targetBoxMno) return;
+                const rows = box.querySelectorAll('.team-row.placeholder');
+                if (rows[position]) {
+                    rows[position].innerHTML = `<span>${winner}</span><span class="condition-lbl confirmed">勝者</span>`;
+                    rows[position].classList.add('confirmed');
+                }
+            });
+        }
+
+        // R32→ベスト16
+        propagateWinner('M74', 'M89', 0);
+        propagateWinner('M77', 'M89', 1);
+        propagateWinner('M73', 'M90', 0);
+        propagateWinner('M75', 'M90', 1);
+        propagateWinner('M83', 'M93', 0);
+        propagateWinner('M84', 'M93', 1);
+        propagateWinner('M81', 'M94', 0);
+        propagateWinner('M82', 'M94', 1);
+        propagateWinner('M76', 'M91', 0);
+        propagateWinner('M78', 'M91', 1);
+        propagateWinner('M79', 'M92', 0);
+        propagateWinner('M80', 'M92', 1);
+        propagateWinner('M86', 'M95', 0);
+        propagateWinner('M88', 'M95', 1);
+        propagateWinner('M85', 'M96', 0);
+        propagateWinner('M87', 'M96', 1);
+
+        // ベスト16→準々決勝
+        propagateWinner('M89', 'M97', 0);
+        propagateWinner('M90', 'M97', 1);
+        propagateWinner('M93', 'M98', 0);
+        propagateWinner('M94', 'M98', 1);
+        propagateWinner('M91', 'M99', 0);
+        propagateWinner('M92', 'M99', 1);
+        propagateWinner('M95', 'M100', 0);
+        propagateWinner('M96', 'M100', 1);
+
+        // 準々決勝→準決勝
+        propagateWinner('M97', 'M101', 0);
+        propagateWinner('M98', 'M101', 1);
+        propagateWinner('M99', 'M102', 0);
+        propagateWinner('M100', 'M102', 1);
+
+        // 準決勝→決勝・3位決定戦
+        propagateWinner('M101', 'M104', 0);
+        propagateWinner('M102', 'M104', 1);
+        // 3位決定戦は敗者
+        function propagateLoser(sourceMatchNo, targetBoxMno, position) {
+            const r = ktResults[sourceMatchNo];
+            if (!r || !r.winner) return;
+            const loser = r.winner === r.home ? r.away : r.home;
+            document.querySelectorAll('.match-box').forEach(box => {
+                const mnoEl = box.querySelector('.m-no');
+                if (!mnoEl || mnoEl.textContent.trim() !== targetBoxMno) return;
+                const rows = box.querySelectorAll('.team-row.placeholder');
+                if (rows[position]) {
+                    rows[position].innerHTML = `<span>${loser}</span><span class="condition-lbl confirmed">敗者</span>`;
+                    rows[position].classList.add('confirmed');
+                }
+            });
+        }
+        propagateLoser('M101', 'M103', 0);
+        propagateLoser('M102', 'M103', 1);
+        // ────────────────────────────────────────────────────────────────
+
         document.getElementById("statusBadge").textContent = "同期完了";
         document.getElementById("statusBadge").style.background = "#27ae60";
 
