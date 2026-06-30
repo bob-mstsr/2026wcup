@@ -402,17 +402,26 @@ async function initTournament() {
         // チーム名ペアをキーにして決勝T結果を格納（試合番号フィールド名に依存しない）
         const ktByTeams = {};
         matches.filter(m => m.group === "決勝T").forEach(m => {
-            // 試合番号キー（GASのフィールド名を複数パターンで試みる）
+            // 得点は整数部分が90分スコア、小数部分がPK得点（例: 1.3 vs 1.4 → 1-1(PK4-3)）
+            const sH = parseFloat(m.scoreHome);
+            const sA = parseFloat(m.scoreAway);
+            if (isNaN(sH) || m.scoreHome === null || m.scoreHome === "") return;
+            const intH = Math.floor(sH), intA = Math.floor(sA);
+            const pkH = Math.round((sH - intH) * 10), pkA = Math.round((sA - intA) * 10);
+            const isPK = intH === intA && (pkH > 0 || pkA > 0);
+            const winner = intH > intA ? m.home
+                         : intA > intH ? m.away
+                         : isPK && pkH > pkA ? m.home
+                         : isPK && pkA > pkH ? m.away
+                         : null;
+            // スコア表示文字列
+            const scoreLabel = isPK
+                ? `${intH} - ${intA} (PK ${pkH}-${pkA})`
+                : `${intH} - ${intA}`;
+            const entry = { home: m.home, away: m.away, scoreHome: intH, scoreAway: intA, scoreLabel, winner };
             const key = m.matchNo || m.match_no || m.id || m.no || m["開催順"] || m.order;
-            if (m.scoreHome !== null && m.scoreHome !== "") {
-                const sH = parseInt(m.scoreHome, 10);
-                const sA = parseInt(m.scoreAway, 10);
-                const winner = sH > sA ? m.home : sH < sA ? m.away : null;
-                const entry = { home: m.home, away: m.away, scoreHome: sH, scoreAway: sA, winner };
-                if (key) ktResults[key] = entry;
-                // チーム名ペアでも引けるようにしておく
-                ktByTeams[`${m.home}|${m.away}`] = entry;
-            }
+            if (key) ktResults[key] = entry;
+            ktByTeams[`${m.home}|${m.away}`] = entry;
         });
 
         // R32の各試合について、スロットからチーム名を読んで ktByTeams と突合し ktResults[Mxx] を補完
@@ -460,7 +469,7 @@ async function initTournament() {
             if (metaEl && !metaEl.querySelector('.ko-score')) {
                 const scoreSpan = document.createElement('span');
                 scoreSpan.className = 'ko-score';
-                scoreSpan.textContent = `${r.scoreHome} - ${r.scoreAway}`;
+                scoreSpan.textContent = r.scoreLabel || `${r.scoreHome} - ${r.scoreAway}`;
                 scoreSpan.style.cssText = 'font-weight:bold; color:#f6e05e; margin-left:4px;';
                 metaEl.appendChild(scoreSpan);
             }
